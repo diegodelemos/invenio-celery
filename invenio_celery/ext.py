@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015, 2016, 2017 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -70,6 +70,10 @@ class InvenioCelery(object):
         """Initialize configuration."""
         for k in dir(config):
             if k.startswith('CELERY_') or k.startswith('BROKER_'):
+                if k == 'BROKER_URL':  # Celery 4 compatibility
+                    app.config.setdefault(k, getattr(config, k))
+                    app.config.setdefault('CELERY_{0}'.format(k),
+                                          getattr(config, k))
                 app.config.setdefault(k, getattr(config, k))
 
     def get_queues(self):
